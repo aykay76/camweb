@@ -1,0 +1,9 @@
+#photo
+{
+    filter:blur(3px);
+}
+
+#video
+{
+    transform: scaleX(-1);
+}
