@@ -7,6 +7,8 @@ var video = null;
 var canvas = null;
 var photo = null;
 var startbutton = null;
+var context = null
+var first = true
 
 function startup() {
     video = document.getElementById('video');
@@ -18,6 +20,10 @@ function startup() {
     .then(function(stream) {
         video.srcObject = stream;
         video.play();
+
+        window.setInterval(frame => {
+            takepicture()
+        }, 100)
     })
     .catch(function(err) {
         console.log("An error occurred: " + err);
@@ -36,33 +42,46 @@ function startup() {
     }, false);
       
     startbutton.addEventListener('click', function(ev){
-    takepicture();
-    ev.preventDefault();
+        takepicture();
+        ev.preventDefault();
     }, false);
     
     clearphoto();
 }
 
 function clearphoto() {
-    var context = canvas.getContext('2d');
-    context.fillStyle = "#AAA";
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context = canvas.getContext('2d')
+    context.globalAlpha = 0.5
 
-    var data = canvas.toDataURL('image/png');
-    photo.setAttribute('src', data);
+    var data = canvas.toDataURL('image/png')
+    photo.setAttribute('src', data)
 }
 
 function takepicture() {
-    var context = canvas.getContext('2d');
     if (width && height) {
-        canvas.width = width;
-        canvas.height = height;
-        context.drawImage(video, 0, 0, width, height);
+        canvas.width = width
+        canvas.height = height
 
-        var data = canvas.toDataURL('image/png');
-        photo.setAttribute('src', data);
+        if (first === true)
+        {
+            first = false
+            context.drawImage(video, 0, 0, width, height) 
+        }
+        else
+        {
+            context.globalAlpha = 1.0
+            context.drawImage(photo, 0, 0, width, height)
+            context.globalCompositeOperation = 'lighten'
+            context.globalAlpha = 0.5
+            context.drawImage(video, 0, 0, width, height)
+            context.globalAlpha = 1.0
+        }
+
+        var data = canvas.toDataURL('image/png')
+        photo.setAttribute('src', data)
     } else {
-        clearphoto();
+        console.log("clearing")
+        clearphoto()
     }
 }
 
